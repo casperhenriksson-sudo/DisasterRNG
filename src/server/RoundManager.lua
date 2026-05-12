@@ -20,6 +20,7 @@ local alivePlayers  = {}
 local roundActive   = false   -- true while players are on the map
 local roundEnding   = false   -- guard: prevents double endRound
 local roundCount    = 0       -- increments each round
+local roundTimer    = 0       -- seconds elapsed in current round (for GetTimeLeft)
 
 local roundEndSignal = Instance.new("BindableEvent") -- fired to cut ROUND_LENGTH short
 
@@ -200,13 +201,13 @@ local function runRound()
 	end
 
 	-- ── 5. Wait ROUND_LENGTH, but allow early exit via roundEndSignal ────────
-	local t    = 0
+	roundTimer = 0
 	local conn = roundEndSignal.Event:Connect(function()
-		t = ROUND_LENGTH   -- jump the counter to the end
+		roundTimer = ROUND_LENGTH   -- jump the counter to the end
 	end)
-	while t < ROUND_LENGTH do
+	while roundTimer < ROUND_LENGTH do
 		task.wait(1)
-		t += 1
+		roundTimer += 1
 	end
 	conn:Disconnect()
 
@@ -261,6 +262,16 @@ function RoundManager.Start()
 		end
 		task.wait(2)
 	end
+end
+
+function RoundManager.SkipRound()
+	if roundActive and not roundEnding then
+		roundEndSignal:Fire()
+	end
+end
+
+function RoundManager.GetTimeLeft()
+	return math.max(0, ROUND_LENGTH - roundTimer)
 end
 
 return RoundManager
