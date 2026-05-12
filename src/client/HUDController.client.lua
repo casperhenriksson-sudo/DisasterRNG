@@ -53,7 +53,12 @@ RoundEvent.OnClientEvent:Connect(function(eventName, data)
 
 	elseif eventName == "RoundStart" then
 		-- Show briefly then hide
-		showMessage("Round Active", 3)
+		local roundNum = (type(data) == "table" and data.round) or ""
+		local roundText = roundNum ~= "" and ("Round " .. roundNum .. " — Active") or "Round Active"
+		showMessage(roundText, 3)
+
+	elseif eventName == "RoundInProgress" then
+		showMessage("Round in progress — wait for next round", 8)
 
 	elseif eventName == "RoundEnd" then
 		-- Show briefly then revert to waiting message

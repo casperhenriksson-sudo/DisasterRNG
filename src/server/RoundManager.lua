@@ -19,6 +19,7 @@ local RoundEvent = ReplicatedStorage:WaitForChild("RoundEvent")
 local alivePlayers  = {}
 local roundActive   = false   -- true while players are on the map
 local roundEnding   = false   -- guard: prevents double endRound
+local roundCount    = 0       -- increments each round
 
 local roundEndSignal = Instance.new("BindableEvent") -- fired to cut ROUND_LENGTH short
 
@@ -146,6 +147,7 @@ local function runRound()
 	end
 
 	-- ── 3. Teleport to map ───────────────────────────────────────────────────
+	roundCount   = roundCount + 1
 	roundActive  = true
 	roundEnding  = false
 	teleportToMap()
@@ -176,6 +178,7 @@ local function runRound()
 		disaster = currentDisaster,
 		mutation = currentMutation and currentMutation.name or nil,
 		duration = ROUND_LENGTH,
+		round    = roundCount,
 	})
 
 	print("RoundManager: Disaster = " .. currentDisaster)
