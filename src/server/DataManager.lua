@@ -163,13 +163,16 @@ end)
 -- Spara när spelare lämnar
 Players.PlayerRemoving:Connect(function(player)
     DataManager.SaveData(player)
+    savedOnLeave[player.UserId] = true
     playerData[player.UserId] = nil
 end)
 
--- Spara vid server-shutdown
+-- Spara vid server-shutdown (skip players already saved by PlayerRemoving to avoid concurrent SetAsync on same key)
 game:BindToClose(function()
     for _, player in ipairs(Players:GetPlayers()) do
-        DataManager.SaveData(player)
+        if not savedOnLeave[player.UserId] then
+            DataManager.SaveData(player)
+        end
     end
 end)
 

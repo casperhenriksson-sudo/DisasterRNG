@@ -25,6 +25,11 @@ local STREAK_BONUSES = {25, 30, 40, 50, 60, 75, 100}
 -- ── Core award function ───────────────────────────────────────────────────────
 
 function CurrencyManager.AwardCoins(player, amount, reason)
+    if type(amount) ~= "number" or amount <= 0 or amount ~= amount or amount >= math.huge then
+        warn("[CurrencyManager] AwardCoins: invalid amount " .. tostring(amount) .. " for " .. player.Name)
+        return
+    end
+
     local data = DataManager.GetData(player)
     if not data then
         warn("[CurrencyManager] AwardCoins: no data for " .. player.Name)
