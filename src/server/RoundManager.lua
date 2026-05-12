@@ -3,6 +3,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local DataManager  = require(game.ServerScriptService.DataManager)
 local PerkManager  = require(game.ServerScriptService.PerkManager)
 local DisasterManager = require(game.ServerScriptService.DisasterManager)
+local CurrencyManager = require(game.ServerScriptService.CurrencyManager)
 
 local RoundManager = {}
 
@@ -221,6 +222,12 @@ local function runRound()
 	if roundEnding then return end  -- another code path already handling end
 	roundEnding = true
 
+	-- Determine if there is exactly one winner (last survivor)
+	local winner = nil
+	if #alivePlayers == 1 then
+		winner = alivePlayers[1]
+	end
+
 	for _, player in ipairs(Players:GetPlayers()) do
 		local survived = false
 		for _, p in ipairs(alivePlayers) do
@@ -229,9 +236,24 @@ local function runRound()
 				break
 			end
 		end
-		local reward = survived and 100 or 25
-		DataManager.AddMoney(player, reward)
-		dprint(player.Name, "earned $" .. reward, survived and "(survived)" or "(eliminated)")
+
+		local data = DataManager.GetData(player)
+
+		if survived then
+			CurrencyManager.AwardSurviveBonus(player)
+			if player == winner then
+				-- AwardWinBonus also increments totalWins and checks milestones
+				CurrencyManager.AwardWinBonus(player)
+			end
+			dprint(player.Name, "survived" .. (player == winner and " (WINNER)" or ""))
+		else
+			dprint(player.Name, "eliminated")
+		end
+
+		-- Increment rounds played for everyone
+		if data then
+			data.totalRoundsPlayed = (data.totalRoundsPlayed or 0) + 1
+		end
 	end
 
 	-- ── 7. Perks + luck bonus ────────────────────────────────────────────────
