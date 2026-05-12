@@ -1,0 +1,32 @@
+{
+  "name": "DisasterRNG",
+  "tree": {
+    "$className": "DataModel",
+    "ServerScriptService": {
+      "$className": "ServerScriptService",
+      "$path": "src/server"
+    },
+    "StarterPlayer": {
+      "$className": "StarterPlayer",
+      "StarterPlayerScripts": {
+        "$className": "StarterPlayerScripts",
+        "$path": "src/client"
+      }
+    },
+    "StarterGui": {
+      "$className": "StarterGui"
+    },
+    "ReplicatedStorage": {
+      "$className": "ReplicatedStorage",
+      "SpinData": {
+        "$path": "src/shared/SpinData.lua"
+      },
+      "UIs": {
+        "$className": "Folder",
+        "UILibrary": {
+          "$path": "src/shared/UIs/UILibrary"
+        }
+      }
+    }
+  }
+}
