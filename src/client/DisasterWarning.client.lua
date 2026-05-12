@@ -145,6 +145,7 @@ end
 -- Helpers
 -- ===========================================================================
 local originalBrightness = Lighting.Brightness
+local atmosphere_oldDensity  -- upvalue shared across activateStage1, activateRoundStart, onRoundEnd
 
 local function makeFrame(props)
 	local f = Instance.new("Frame")
@@ -262,7 +263,7 @@ local function activateStage1(disasterName)
 	originalBrightness = Lighting.Brightness
 	local atmosphere = Lighting:FindFirstChildOfClass("Atmosphere")
 	if atmosphere then
-		atmosphere_oldDensity = atmosphere.Density
+		atmosphere_oldDensity = atmosphere.Density  -- stored in module-level upvalue
 		trackTween(TweenService:Create(
 			atmosphere,
 			TweenInfo.new(1.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),

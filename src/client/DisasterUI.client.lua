@@ -241,9 +241,6 @@ local function showDisaster(name, mutation)
     DisasterFrame.Position = UDim2.new(0.5, -230, 0, -200)
     DisasterFrame.Visible  = true
 
-    -- Screen shake
-    doScreenShake(0.6, 0.35)
-
     -- Flash overlay
     doFlash()
 

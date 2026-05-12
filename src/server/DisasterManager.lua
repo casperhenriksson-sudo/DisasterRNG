@@ -529,7 +529,7 @@ end
 -- ============================================
 function DisasterManager.Earthquake()
     local RunService = game:GetService("RunService")
-    local map = workspace:FindFirstChild("CurrentMap")
+    local map = workspace:FindFirstChild("Model")
     local parts = getBreakableParts()
     local elapsed = 0
     local wave = 1
@@ -753,7 +753,6 @@ function DisasterManager.Run(disasterName)
     local fn = disasterMap[disasterName]
     if fn then
         print("🌪️ Running disaster: " .. disasterName)
-        RoundEvent:FireAllClients("DisasterWarning", disasterName)
         task.wait(3)
         DisasterEvent:FireAllClients(disasterName)
         task.spawn(fn)

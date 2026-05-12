@@ -167,8 +167,10 @@ local function runRound()
 	local currentDisaster = pickDisaster()
 	local currentMutation = pickMutation()
 
-	notifyAll("DisasterWarning", currentDisaster)
-	task.wait(5)
+	notifyAll("DisasterWarning", {stage = 1, disaster = currentDisaster})
+	task.wait(4)
+	notifyAll("DisasterWarning", {stage = 2, disaster = currentDisaster})
+	task.wait(1)
 
 	notifyAll("RoundStart", {
 		disaster = currentDisaster,
