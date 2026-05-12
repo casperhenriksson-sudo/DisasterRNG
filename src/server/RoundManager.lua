@@ -132,6 +132,17 @@ Players.PlayerRemoving:Connect(function(player)
 	end
 end)
 
+-- PlayerAdded: notify late joiners that a round is already in progress
+Players.PlayerAdded:Connect(function(player)
+	if not roundActive then return end
+	player.CharacterAdded:Connect(function()
+		task.wait(1)
+		if roundActive then
+			RoundEvent:FireClient(player, "RoundInProgress", {})
+		end
+	end)
+end)
+
 -- ── Core round logic ───────────────────────────────────────────────────────────
 local function runRound()
 	-- ── 1. Wait for minimum players ──────────────────────────────────────────
