@@ -6,6 +6,12 @@ local DisasterManager = require(game.ServerScriptService.DisasterManager)
 
 local RoundManager = {}
 
+-- Set DEBUG_MODE = true to enable debug prints
+local DEBUG_MODE = false
+local function dprint(...)
+    if DEBUG_MODE then print("[RoundManager]", ...) end
+end
+
 -- ── Constants ────────────────────────────────────────────────────────────────
 local MIN_PLAYERS      = 2
 local LOBBY_COUNTDOWN  = 10
@@ -193,7 +199,7 @@ local function runRound()
 		round    = roundCount,
 	})
 
-	print("RoundManager: Disaster = " .. currentDisaster)
+	dprint("Disaster =", currentDisaster)
 
 	local ok, runErr = pcall(DisasterManager.Run, currentDisaster)
 	if not ok then
@@ -225,7 +231,7 @@ local function runRound()
 		end
 		local reward = survived and 100 or 25
 		DataManager.AddMoney(player, reward)
-		print(player.Name .. " earned $" .. reward .. (survived and " (survived)" or " (eliminated)"))
+		dprint(player.Name, "earned $" .. reward, survived and "(survived)" or "(eliminated)")
 	end
 
 	-- ── 7. Perks + luck bonus ────────────────────────────────────────────────
@@ -253,7 +259,7 @@ end
 
 -- ── Public API ────────────────────────────────────────────────────────────────
 function RoundManager.Start()
-	print("RoundManager: started")
+	dprint("started")
 	while true do
 		local ok, err = pcall(runRound)
 		if not ok then

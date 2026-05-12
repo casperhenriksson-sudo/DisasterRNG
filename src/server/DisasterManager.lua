@@ -13,6 +13,12 @@ end
 
 local DisasterManager = {}
 
+-- Set DEBUG_MODE = true to enable debug prints
+local DEBUG_MODE = false
+local function dprint(...)
+    if DEBUG_MODE then print("[DisasterManager]", ...) end
+end
+
 -- ============================================
 -- 🔧 HELPER FUNCTIONS
 -- ============================================
@@ -752,7 +758,7 @@ local disasterMap = {
 function DisasterManager.Run(disasterName)
     local fn = disasterMap[disasterName]
     if fn then
-        print("🌪️ Running disaster: " .. disasterName)
+        dprint("Running disaster:", disasterName)
         task.wait(3)
         DisasterEvent:FireAllClients(disasterName)
         task.spawn(fn)
