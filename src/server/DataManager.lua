@@ -12,6 +12,14 @@ local DEFAULT_DATA = {
     rebirth = 0,
     activeBrainrots = {}, -- Brainrots spelaren har equipat
     index = {},           -- Alla upplåsta brainrots någonsin
+    -- DisasterCoins economy
+    disasterCoins = 0,
+    totalWins = 0,
+    totalRoundsPlayed = 0,
+    lastLoginTimestamp = 0,
+    loginStreak = 0,
+    milestonesClaimed = {},
+    inventory = {},
 }
 
 -- Ladda data när spelare går med
@@ -37,6 +45,13 @@ function DataManager.LoadData(player)
             rebirth = DEFAULT_DATA.rebirth,
             activeBrainrots = {},
             index = {},
+            disasterCoins = 0,
+            totalWins = 0,
+            totalRoundsPlayed = 0,
+            lastLoginTimestamp = 0,
+            loginStreak = 0,
+            milestonesClaimed = {},
+            inventory = {},
         }
     end
 
@@ -117,6 +132,21 @@ function DataManager.Rebirth(player)
         -- Index bevaras!
         print("✅ " .. player.Name .. " har rebirthat! Nivå: " .. data.rebirth)
     end
+end
+
+-- Lägg till DisasterCoins
+function DataManager.AddCoins(player, amount)
+    local data = playerData[player.UserId]
+    if data then
+        data.disasterCoins = (data.disasterCoins or 0) + amount
+        return data.disasterCoins
+    end
+end
+
+-- Hämta spelarens DisasterCoins
+function DataManager.GetCoins(player)
+    local data = playerData[player.UserId]
+    return data and (data.disasterCoins or 0) or 0
 end
 
 -- Auto-spara var 60:e sekund
