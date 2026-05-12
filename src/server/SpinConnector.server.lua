@@ -4,7 +4,7 @@ local SpinHandler = require(game.ServerScriptService.SpinHandler)
 local PerkManager = require(game.ServerScriptService.PerkManager)
 
 SpinEvent.OnServerEvent:Connect(function(player, luckMultiplier)
-    local results = SpinHandler.DoSpin(player, luckMultiplier or 1)
+    local results = SpinHandler.DoSpin(player, math.clamp(tonumber(luckMultiplier) or 1, 1, 5))
     SpinEvent:FireClient(player, results)
 
     -- Applicera perk från senaste brainrot
