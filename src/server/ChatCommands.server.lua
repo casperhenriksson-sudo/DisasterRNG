@@ -1,9 +1,10 @@
 -- ChatCommands Server Script
--- Registers /skip, /timeleft, /players via TextChatService
+-- Registers /skip, /timeleft, /players, /coins via TextChatService
 
 local Players = game:GetService("Players")
 local TextChatService = game:GetService("TextChatService")
 local RoundManager = require(game.ServerScriptService.RoundManager)
+local DataManager = require(game.ServerScriptService.DataManager)
 
 -- Admin whitelist — UserId numbers
 local ADMINS = {
@@ -69,4 +70,18 @@ playersCmd.Triggered:Connect(function(originTextSource, unfilteredText)
 		table.insert(names, p.Name)
 	end
 	sendSystemMsg("[Server] Players: " .. table.concat(names, ", "))
+end)
+
+-- /coins command — shows the caller's DisasterCoins balance
+local coinsCmd = Instance.new("TextChatCommand")
+coinsCmd.Name = "CoinsCommand"
+coinsCmd.PrimaryAlias = "/coins"
+coinsCmd.SecondaryAlias = "/dc"
+coinsCmd.Parent = TextChatService
+
+coinsCmd.Triggered:Connect(function(originTextSource, unfilteredText)
+	local player = Players:GetPlayerByUserId(originTextSource.UserId)
+	if not player then return end
+	local coins = DataManager.GetCoins(player)
+	sendSystemMsg("[Server] " .. player.Name .. " has " .. coins .. " DC.")
 end)
