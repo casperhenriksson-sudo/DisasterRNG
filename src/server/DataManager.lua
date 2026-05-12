@@ -3,7 +3,8 @@ local Players = game:GetService("Players")
 
 local DataManager = {}
 local PlayerStore = DataStoreService:GetDataStore("DisasterRNG_v1")
-local playerData = {} -- Cache medan spelaren är online
+local playerData = {}    -- Cache medan spelaren är online
+local savedOnLeave = {}  -- tracks players already saved by PlayerRemoving (prevents BindToClose double-write)
 
 -- Standardvärden för ny spelare
 local DEFAULT_DATA = {
