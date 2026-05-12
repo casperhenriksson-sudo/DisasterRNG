@@ -6,6 +6,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
+local Lighting = game:GetService("Lighting")
 
 local player = Players.LocalPlayer
 local playerGui = player.PlayerGui
@@ -474,6 +475,7 @@ if RoundEvent then
 
         elseif eventType == "RoundStart" then
             isPlayerAlive = true
+            resetDeathCC()
             stopSurvivorPulse()
 
             -- Count players
@@ -523,6 +525,7 @@ if RoundEvent then
             -- Track if local player died
             if name == player.Name then
                 isPlayerAlive = false
+                applyDeathCC()
             end
 
         elseif eventType == "LastSurvivor" then
@@ -553,6 +556,8 @@ if RoundEvent then
             if not isPlayerAlive then
                 survived = false
             end
+
+            resetDeathCC()
 
             if survived then
                 showDramatic("✅ YOU SURVIVED!", GREEN_SURV, 3, "flash")
@@ -607,3 +612,31 @@ end)
 if leaderFrame then leaderFrame.Visible = false end
 if playerStatusFrame then playerStatusFrame.Visible = true end
 setStatusText("🎮 Lobby", Color3.fromRGB(200, 200, 200))
+
+-- ============================================================
+-- DEATH COLOR CORRECTION
+-- ============================================================
+local deathCC = Instance.new("ColorCorrectionEffect")
+deathCC.Name  = "GameFeel_DeathCC"
+deathCC.Saturation  = 0
+deathCC.Brightness  = 0
+deathCC.Contrast    = 0
+deathCC.TintColor   = Color3.fromRGB(255, 255, 255)
+deathCC.Parent      = Lighting
+
+local function resetDeathCC()
+    TweenService:Create(deathCC,
+        TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+        { Saturation = 0, Brightness = 0, TintColor = Color3.fromRGB(255, 255, 255) }
+    ):Play()
+end
+
+local function applyDeathCC()
+    TweenService:Create(deathCC,
+        TweenInfo.new(1.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+        { Saturation = -1, Brightness = -0.2, TintColor = Color3.fromRGB(255, 180, 180) }
+    ):Play()
+end
+
+-- Reset on character respawn
+player.CharacterAdded:Connect(resetDeathCC)
