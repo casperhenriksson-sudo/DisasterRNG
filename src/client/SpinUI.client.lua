@@ -110,10 +110,39 @@ for _, tier in ipairs(TIERS) do
     local btnData = {frame=frame, label=topLabel, costLabel=costLabel, tier=tier}
     table.insert(buttons, btnData)
 
+    -- Hover scale effect
+    frame.MouseEnter:Connect(function()
+        local canAfford = currentDC >= tier.cost
+        if canAfford and not inRound and not spinning then
+            TweenService:Create(frame, TweenInfo.new(0.12, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                Size = UDim2.new(0, 134, 0, 86),
+            }):Play()
+        end
+    end)
+    frame.MouseLeave:Connect(function()
+        TweenService:Create(frame, TweenInfo.new(0.12, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+            Size = UDim2.new(0, 126, 0, 80),
+        }):Play()
+    end)
+
     frame.MouseButton1Click:Connect(function()
         if inRound or spinning then return end
-        if currentDC < tier.cost then return end
-
+        if currentDC < tier.cost then
+            -- Brief shake on insufficient funds
+            local origPos = frame.Position
+            for _ = 1, 3 do
+                TweenService:Create(frame, TweenInfo.new(0.04), {Position = UDim2.new(origPos.X.Scale, origPos.X.Offset + 5, origPos.Y.Scale, origPos.Y.Offset)}):Play()
+                task.wait(0.05)
+                TweenService:Create(frame, TweenInfo.new(0.04), {Position = origPos}):Play()
+                task.wait(0.05)
+            end
+            return
+        end
+        -- Press scale-down then release
+        TweenService:Create(frame, TweenInfo.new(0.08), {Size = UDim2.new(0, 118, 0, 74)}):Play()
+        task.delay(0.1, function()
+            TweenService:Create(frame, TweenInfo.new(0.1, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Size = UDim2.new(0, 126, 0, 80)}):Play()
+        end)
         spinning = true
         updateButtonStates()
         SpinRequestEvent:FireServer(tier.name)

@@ -262,21 +262,36 @@ local function showResult(data)
         survNames.Text = table.concat(top, "   ")
     end
 
-    -- Animate in
+    -- Animate in: dim fades in, card bounces up from below
+    dim.BackgroundTransparency = 1
     dim.Visible = true
-    card.Position = UDim2.new(0.5, -210, 0.5, -160)
+    TweenService:Create(dim, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        BackgroundTransparency = 0.5,
+    }):Play()
+
     card.BackgroundTransparency = 1
-    TweenService:Create(card, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+    card.Size = UDim2.new(0, 380, 0, 290)
+    card.Position = UDim2.new(0.5, -190, 0.5, -80)
+    TweenService:Create(card, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
         BackgroundTransparency = 0.05,
+        Size = UDim2.new(0, 420, 0, 320),
+        Position = UDim2.new(0.5, -210, 0.5, -160),
     }):Play()
 
     -- Auto-hide after 5s
     task.delay(5, function()
-        TweenService:Create(dim, TweenInfo.new(0.4), {BackgroundTransparency = 1}):Play()
-        task.delay(0.5, function()
+        TweenService:Create(dim, TweenInfo.new(0.35, Enum.EasingStyle.Quad), {BackgroundTransparency = 1}):Play()
+        TweenService:Create(card, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+            BackgroundTransparency = 1,
+            Size = UDim2.new(0, 380, 0, 290),
+            Position = UDim2.new(0.5, -190, 0.5, -100),
+        }):Play()
+        task.delay(0.4, function()
             dim.Visible = false
             dim.BackgroundTransparency = 0.5
             card.BackgroundTransparency = 0.05
+            card.Size = UDim2.new(0, 420, 0, 320)
+            card.Position = UDim2.new(0.5, -210, 0.5, -160)
         end)
     end)
 end

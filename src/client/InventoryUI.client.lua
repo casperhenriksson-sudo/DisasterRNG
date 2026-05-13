@@ -199,13 +199,26 @@ end
 local function openInventory()
     if isOpen then return end
     isOpen = true
+    panel.Size = UDim2.new(0, 0, 0, 0)
+    panel.Position = UDim2.new(0.5, 0, 0.5, 0)
     panel.Visible = true
+    TweenService:Create(panel, TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+        Size = UDim2.new(0, 360, 0, 500),
+        Position = UDim2.new(0.5, -180, 0.5, -250),
+    }):Play()
     task.spawn(refreshInventory)
 end
 
 local function closeInventory()
-    isOpen = false
-    panel.Visible = false
+    if not isOpen then return end
+    TweenService:Create(panel, TweenInfo.new(0.25, Enum.EasingStyle.Back, Enum.EasingDirection.In), {
+        Size = UDim2.new(0, 0, 0, 0),
+        Position = UDim2.new(0.5, 0, 0.5, 0),
+    }):Play()
+    task.delay(0.28, function()
+        panel.Visible = false
+        isOpen = false
+    end)
 end
 
 invBtn.MouseButton1Click:Connect(function()
@@ -216,8 +229,7 @@ closeBtn.MouseButton1Click:Connect(closeInventory)
 -- Equip update from server
 EquipUpdateEvent.OnClientEvent:Connect(function(equippedPlayer, itemName, rarityName)
     if equippedPlayer == player then
-        currentEquipped = itemName  -- nil if unequipped
-        -- Update button states without full refresh
+        currentEquipped = itemName
         for name, btn in pairs(equippedButtons) do
             btn.Text = (name == itemName) and "Equipped" or "Equip"
             btn.BackgroundColor3 = (name == itemName) and Color3.fromRGB(60,180,60) or Color3.fromRGB(60,60,120)
@@ -227,10 +239,14 @@ end)
 
 -- Round visibility
 RoundEvent.OnClientEvent:Connect(function(ev)
-    if ev=="RoundStart" then
-        inRound=true; invBtn.Visible=false; closeInventory()
-    elseif ev=="RoundEnd" or ev=="LobbyWaiting" then
-        inRound=false; invBtn.Visible=true
+    if ev == "RoundStart" then
+        inRound = true
+        isOpen = false
+        panel.Visible = false
+        invBtn.Visible = false
+    elseif ev == "RoundEnd" or ev == "LobbyWaiting" then
+        inRound = false
+        invBtn.Visible = true
     end
 end)
 

@@ -82,6 +82,16 @@ lbLayout.Padding = UDim.new(0, 2)
 lbLayout.Parent = lbList
 
 local lbRows = {}
+local ownRankLabel = Instance.new("TextLabel")
+ownRankLabel.Size = UDim2.new(1, -10, 0, 20)
+ownRankLabel.Position = UDim2.new(0, 5, 1, -24)
+ownRankLabel.BackgroundTransparency = 1
+ownRankLabel.Font = Enum.Font.GothamBold
+ownRankLabel.TextSize = 11
+ownRankLabel.Text = ""
+ownRankLabel.TextColor3 = Color3.fromRGB(180, 220, 255)
+ownRankLabel.TextXAlignment = Enum.TextXAlignment.Center
+ownRankLabel.Parent = lbPanel
 
 local function updateLeaderboard(entries)
     -- Remove old rows
@@ -101,6 +111,21 @@ local function updateLeaderboard(entries)
         empty.Parent = lbList
         table.insert(lbRows, empty)
         return
+    end
+
+    -- Find local player's rank
+    local ownRank, ownWins = nil, nil
+    for i, entry in ipairs(entries) do
+        if entry.name == player.Name then
+            ownRank = i
+            ownWins = entry.wins
+            break
+        end
+    end
+    if ownRank then
+        ownRankLabel.Text = "You: #" .. ownRank .. "  (" .. ownWins .. "W)"
+    else
+        ownRankLabel.Text = ""
     end
 
     for i, entry in ipairs(entries) do

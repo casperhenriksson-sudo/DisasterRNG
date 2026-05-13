@@ -67,6 +67,29 @@ local function hideNow()
 	Countdown.Visible = false
 end
 
+-- ── Alive counter (shown during rounds) ──────────────────────────────────────
+local aliveLabel = Instance.new("TextLabel")
+aliveLabel.Name = "AliveLabel"
+aliveLabel.Size = UDim2.new(0, 180, 0, 36)
+aliveLabel.Position = UDim2.new(0.5, -90, 0, 10)
+aliveLabel.BackgroundTransparency = 1
+aliveLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+aliveLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+aliveLabel.TextStrokeTransparency = 0.3
+aliveLabel.Font = Enum.Font.GothamBold
+aliveLabel.TextSize = 20
+aliveLabel.Text = ""
+aliveLabel.Visible = false
+aliveLabel.Parent = gameUI
+
+local aliveCount = 0
+
+local function setAliveCount(n)
+	aliveCount = n
+	aliveLabel.Text = "👤 " .. n .. " alive"
+	aliveLabel.Visible = n > 0
+end
+
 -- ── Idle / default state ──────────────────────────────────────────────────────
 showMessage("Waiting for players...")
 
@@ -74,28 +97,37 @@ showMessage("Waiting for players...")
 RoundEvent.OnClientEvent:Connect(function(eventName, data)
 
 	if eventName == "LobbyWaiting" then
-		-- Server is waiting for minimum player count
 		local min = (type(data) == "table" and data.min) or 2
 		showMessage("Waiting for players... (" .. min .. " needed)")
+		aliveLabel.Visible = false
 
 	elseif eventName == "LobbyCountdown" then
 		local secondsLeft = tonumber(data) or 0
 		showMessage("Round starts in: " .. secondsLeft .. "s")
 
 	elseif eventName == "RoundStart" then
-		-- Show briefly then hide
 		local roundNum = (type(data) == "table" and data.round) or ""
 		local roundText = roundNum ~= "" and ("Round " .. roundNum .. " — Active") or "Round Active"
 		showMessage(roundText, 3)
+		-- Snapshot alive count from current players
+		setAliveCount(#game:GetService("Players"):GetPlayers())
+
+	elseif eventName == "PlayerDied" then
+		setAliveCount(math.max(0, aliveCount - 1))
+
+	elseif eventName == "LastSurvivor" then
+		local name = (type(data) == "table" and data.name) or "Someone"
+		aliveLabel.Text = "⭐ Last survivor: " .. name
+		aliveLabel.TextColor3 = Color3.fromRGB(255, 215, 60)
 
 	elseif eventName == "RoundInProgress" then
 		showMessage("Round in progress — wait for next round", 8)
 
 	elseif eventName == "RoundEnd" then
-		-- Show briefly then revert to waiting message
+		aliveLabel.Visible = false
+		aliveLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 		showMessage("Round ended!", 4)
 		task.delay(4, function()
-			-- Only restore "Waiting" if nothing else has written to Countdown yet
 			if not Countdown.Visible then
 				showMessage("Waiting for players...")
 			end
