@@ -21,6 +21,10 @@ local DEFAULT_DATA = {
     loginStreak = 0,
     milestonesClaimed = {},
     inventory = {},
+    -- XP / Level progression
+    xp = 0,
+    level = 1,
+    achievements = {},   -- {achievementId = true}
 }
 
 -- Ladda data när spelare går med
@@ -39,21 +43,16 @@ function DataManager.LoadData(player)
         end
         playerData[player.UserId] = data
     else
-        -- Ny spelare
-        playerData[player.UserId] = {
-            money = DEFAULT_DATA.money,
-            luck = DEFAULT_DATA.luck,
-            rebirth = DEFAULT_DATA.rebirth,
-            activeBrainrots = {},
-            index = {},
-            disasterCoins = 0,
-            totalWins = 0,
-            totalRoundsPlayed = 0,
-            lastLoginTimestamp = 0,
-            loginStreak = 0,
-            milestonesClaimed = {},
-            inventory = {},
-        }
+        -- Ny spelare — copy of DEFAULT_DATA
+        local newData = {}
+        for k, v in pairs(DEFAULT_DATA) do
+            if type(v) == "table" then
+                newData[k] = {}
+            else
+                newData[k] = v
+            end
+        end
+        playerData[player.UserId] = newData
     end
 
     print("✅ Data laddad för " .. player.Name)
