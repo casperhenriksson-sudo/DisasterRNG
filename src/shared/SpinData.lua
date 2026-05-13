@@ -72,4 +72,69 @@ SpinData.BonusChances = {
     {multiplier = 50, weight = 2},
 }
 
+SpinData.Items = {
+    Common = {
+        {name="Red Aura",    color=Color3.fromRGB(220,60,60)},
+        {name="Blue Aura",   color=Color3.fromRGB(60,80,220)},
+        {name="Green Aura",  color=Color3.fromRGB(60,180,60)},
+        {name="Yellow Aura", color=Color3.fromRGB(240,220,40)},
+        {name="Purple Aura", color=Color3.fromRGB(160,60,200)},
+        {name="White Glow",  color=Color3.fromRGB(240,240,240)},
+        {name="Spark",       color=Color3.fromRGB(255,200,50)},
+        {name="Mini Star",   color=Color3.fromRGB(200,230,255)},
+        {name="Cloud Puff",  color=Color3.fromRGB(210,210,230)},
+        {name="Mist",        color=Color3.fromRGB(180,200,200)},
+    },
+    Uncommon = {
+        {name="Fire Sparkle",  color=Color3.fromRGB(255,120,30)},
+        {name="Water Drop",    color=Color3.fromRGB(40,160,255)},
+        {name="Earth Crack",   color=Color3.fromRGB(140,90,40)},
+        {name="Wind Swirl",    color=Color3.fromRGB(160,240,200)},
+        {name="Light Beam",    color=Color3.fromRGB(255,255,180)},
+        {name="Shadow Trail",  color=Color3.fromRGB(60,20,80)},
+        {name="Rainbow Wisp",  color=Color3.fromRGB(255,150,200)},
+    },
+    Rare = {
+        {name="Flame Burst",    color=Color3.fromRGB(255,80,0)},
+        {name="Ice Crystal",    color=Color3.fromRGB(150,230,255)},
+        {name="Lightning Ring", color=Color3.fromRGB(255,240,0)},
+        {name="Stone Aura",     color=Color3.fromRGB(120,100,80)},
+        {name="Vortex",         color=Color3.fromRGB(80,40,160)},
+    },
+    Epic = {
+        {name="Phoenix Feather", color=Color3.fromRGB(255,100,20)},
+        {name="Frost Storm",     color=Color3.fromRGB(100,200,255)},
+        {name="Thunder God",     color=Color3.fromRGB(200,160,255)},
+        {name="Earth Titan",     color=Color3.fromRGB(100,70,30)},
+    },
+    Legendary = {
+        {name="Solar Flare",    color=Color3.fromRGB(255,220,0)},
+        {name="Tsunami Wave",   color=Color3.fromRGB(0,120,255)},
+        {name="Tornado Spirit", color=Color3.fromRGB(160,220,160)},
+    },
+    Mythical = {
+        {name="Cosmic Storm",  color=Color3.fromRGB(100,0,200)},
+        {name="Apocalypse",    color=Color3.fromRGB(200,0,0)},
+    },
+    Divine = {
+        {name="Divine Light",   color=Color3.fromRGB(255,240,180)},
+        {name="Heaven's Wrath", color=Color3.fromRGB(220,200,255)},
+    },
+    Corrupted = {
+        {name="The Corruption", color=Color3.fromRGB(60,0,80)},
+    },
+    Celestial = {
+        {name="Starlight Eternal", color=Color3.fromRGB(200,180,255)},
+    },
+    Secret = {
+        {name="???", color=Color3.fromRGB(255,255,255)},
+    },
+}
+
+SpinData.Tiers = {
+    Basic = {cost=50,   minRarityIndex=1},
+    Big   = {cost=500,  minRarityIndex=3},
+    Mega  = {cost=5000, minRarityIndex=4},
+}
+
 return SpinData
