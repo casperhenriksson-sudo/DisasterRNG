@@ -111,7 +111,7 @@ end
 
 -- Handle server events
 DisasterEvent.OnClientEvent:Connect(function(effectName, data)
-    -- New structured effects
+    -- Structured effects
     if effectName == "shake" then
         doShake(data.intensity, data.duration)
     elseif effectName == "tint" then
@@ -120,26 +120,60 @@ DisasterEvent.OnClientEvent:Connect(function(effectName, data)
         doFlash(data.r, data.g, data.b)
     elseif effectName == "fog" then
         doFog(data.near, data.far, data.r, data.g, data.b, data.duration)
+    elseif effectName == "clearEffects" then
+        clearAllEffects()
 
-    -- Legacy disaster-name events (backward compatibility)
+    -- Meteor incoming: subtle shake on warning
+    elseif effectName == "meteorWarning" then
+        doShake(0.08, 0.4)
+    -- Lightning pre-flash
+    elseif effectName == "lightningWarning" then
+        doFlash(240, 240, 180)
+    -- Tsunami siren: tint + shake
+    elseif effectName == "tsunamiWarning" then
+        clearAllEffects()
+        doShake(0.3, 5)
+        doTint(0, 80, 200, 0.1, 12)
+
+    -- Legacy disaster-name events
     elseif effectName == "Flood" then
         clearAllEffects()
-        doTint(100, 140, 255, 0.2, 25)
+        doTint(100, 140, 255, 0.2, 65)
     elseif effectName == "Sandstorm" then
         clearAllEffects()
-        doTint(255, 200, 100, 0.3, 25)
+        doTint(255, 200, 100, 0.3, 45)
+        doFog(0, 150, 200, 170, 100, 45)
     elseif effectName == "Blizzard" then
         clearAllEffects()
-        doTint(200, 220, 255, 0.5, 25)
+        doTint(200, 220, 255, 0.5, 55)
+        doFog(0, 280, 200, 215, 255, 55)
     elseif effectName == "Lightning Storm" then
         clearAllEffects()
-        for i = 0, 4 do
-            task.delay(i * 1.8, function()
-                doFlash(200, 220, 255)
+        for i = 0, 14 do
+            task.delay(i * 1.2, function()
+                doFlash(220, 230, 255)
             end)
         end
     elseif effectName == "Earthquake" then
         clearAllEffects()
-        doShake(0.8, 20)
+        doShake(0.8, 30)
+    elseif effectName == "Tsunami" then
+        clearAllEffects()
+        doShake(0.5, 7)
+        doTint(0, 60, 180, 0.15, 12)
+    elseif effectName == "Acid Rain" then
+        clearAllEffects()
+        doTint(80, 200, 60, 0.2, 65)
+    elseif effectName == "Volcanic Eruption" then
+        clearAllEffects()
+        doTint(255, 80, 30, 0.3, 40)
+        doShake(0.15, 40)
+    elseif effectName == "Tornado" then
+        clearAllEffects()
+        doShake(0.1, 25)
+        doTint(160, 160, 200, 0.1, 25)
+    elseif effectName == "Meteor Strike" then
+        clearAllEffects()
+        doShake(0.05, 30)
     end
 end)
