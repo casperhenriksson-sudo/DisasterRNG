@@ -134,6 +134,29 @@ function DataManager.Rebirth(player)
     end
 end
 
+-- XP thresholds: cumulative XP required for each level
+local XP_LEVELS = {100, 250, 500, 900, 1400, 2100, 3000, 4200, 5800, 8000, 11000, 15000, 20000, 27000, 36000}
+
+-- Add XP, handle level-up, return {xpGained, newXP, newLevel, didLevelUp}
+function DataManager.AddXP(player, amount)
+    local data = playerData[player.UserId]
+    if not data then return {xpGained=0, newXP=0, newLevel=1, didLevelUp=false} end
+    local oldLevel = data.level or 1
+    data.xp = (data.xp or 0) + amount
+    -- Level up
+    local newLevel = oldLevel
+    for i, threshold in ipairs(XP_LEVELS) do
+        if data.xp >= threshold then
+            newLevel = i + 1
+        else
+            break
+        end
+    end
+    local didLevelUp = newLevel > oldLevel
+    data.level = newLevel
+    return {xpGained = amount, newXP = data.xp, newLevel = newLevel, didLevelUp = didLevelUp}
+end
+
 -- Lägg till DisasterCoins
 function DataManager.AddCoins(player, amount)
     local data = playerData[player.UserId]

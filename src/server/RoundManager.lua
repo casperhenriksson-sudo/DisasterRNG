@@ -28,6 +28,7 @@ local roundActive   = false   -- true while players are on the map
 local roundEnding   = false   -- guard: prevents double endRound
 local roundCount    = 0       -- increments each round
 local roundTimer    = 0       -- seconds elapsed in current round (for GetTimeLeft)
+local damageTaken   = {}      -- [player] = total damage taken this round (for perfect-run XP)
 
 local roundEndSignal = Instance.new("BindableEvent") -- fired to cut ROUND_LENGTH short
 
@@ -173,8 +174,24 @@ local function runRound()
 
 	-- Snapshot alive players AFTER teleport
 	alivePlayers = {}
+	damageTaken = {}
 	for _, p in ipairs(Players:GetPlayers()) do
 		table.insert(alivePlayers, p)
+		damageTaken[p] = 0
+		-- Track damage taken via health change
+		local char = p.Character
+		if char then
+			local humanoid = char:FindFirstChild("Humanoid")
+			if humanoid then
+				local prevHealth = humanoid.Health
+				humanoid.HealthChanged:Connect(function(newHealth)
+					if newHealth < prevHealth then
+						damageTaken[p] = (damageTaken[p] or 0) + (prevHealth - newHealth)
+					end
+					prevHealth = newHealth
+				end)
+			end
+		end
 	end
 
 	connectDeathEvents()
@@ -228,6 +245,12 @@ local function runRound()
 		winner = alivePlayers[1]
 	end
 
+	-- Build survivor name list for result screen (top 3)
+	local survivorNames = {}
+	for _, p in ipairs(alivePlayers) do
+		table.insert(survivorNames, p.Name)
+	end
+
 	for _, player in ipairs(Players:GetPlayers()) do
 		local survived = false
 		for _, p in ipairs(alivePlayers) do
@@ -239,10 +262,24 @@ local function runRound()
 
 		local data = DataManager.GetData(player)
 
+		-- XP awards (server-authoritative)
+		local xpEarned = 0
+		if survived then
+			xpEarned = xpEarned + 30  -- survived
+			if player == winner then
+				xpEarned = xpEarned + 50  -- last survivor bonus
+			end
+			-- Perfect run: check damageTaken table
+			if damageTaken[player] and damageTaken[player] == 0 then
+				xpEarned = xpEarned + 25
+			end
+		end
+
+		local xpResult = DataManager.AddXP(player, xpEarned)
+
 		if survived then
 			CurrencyManager.AwardSurviveBonus(player)
 			if player == winner then
-				-- AwardWinBonus also increments totalWins and checks milestones
 				CurrencyManager.AwardWinBonus(player)
 			end
 			dprint(player.Name, "survived" .. (player == winner and " (WINNER)" or ""))
@@ -254,6 +291,18 @@ local function runRound()
 		if data then
 			data.totalRoundsPlayed = (data.totalRoundsPlayed or 0) + 1
 		end
+
+		-- Fire round result to each player individually
+		RoundEvent:FireClient(player, "RoundResult", {
+			survived    = survived,
+			isWinner    = (player == winner),
+			xpEarned    = xpEarned,
+			newXP       = xpResult.newXP,
+			newLevel    = xpResult.newLevel,
+			didLevelUp  = xpResult.didLevelUp,
+			survivors   = survivorNames,
+			disaster    = currentDisaster,
+		})
 	end
 
 	-- ── 7. Perks + luck bonus ────────────────────────────────────────────────
