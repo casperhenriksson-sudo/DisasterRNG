@@ -173,6 +173,48 @@ function DataManager.GetCoins(player)
     return data and (data.disasterCoins or 0) or 0
 end
 
+-- Atomic DC spend: returns true if deducted, false if insufficient
+function DataManager.SpendCoins(player, amount)
+    local data = playerData[player.UserId]
+    if not data then return false end
+    if (data.disasterCoins or 0) < amount then return false end
+    data.disasterCoins = data.disasterCoins - amount
+    return true
+end
+
+function DataManager.AddItem(player, itemName, rarityName)
+    local data = playerData[player.UserId]
+    if not data then return end
+    if not data.inventory then data.inventory = {} end
+    if not data.inventory[itemName] then
+        data.inventory[itemName] = {count=0, rarity=rarityName, firstObtained=os.time()}
+    end
+    data.inventory[itemName].count = data.inventory[itemName].count + 1
+end
+
+function DataManager.PlayerOwnsItem(player, itemName)
+    local data = playerData[player.UserId]
+    if not data or not data.inventory then return false end
+    return data.inventory[itemName] ~= nil and data.inventory[itemName].count > 0
+end
+
+function DataManager.GetInventory(player)
+    local data = playerData[player.UserId]
+    if not data then return {} end
+    return data.inventory or {}
+end
+
+function DataManager.SetEquipped(player, itemName)
+    local data = playerData[player.UserId]
+    if not data then return end
+    data.equippedItem = itemName  -- nil to unequip
+end
+
+function DataManager.GetEquipped(player)
+    local data = playerData[player.UserId]
+    return data and data.equippedItem or nil
+end
+
 -- Auto-spara var 60:e sekund
 task.spawn(function()
     while true do

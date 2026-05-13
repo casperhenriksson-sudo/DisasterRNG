@@ -352,6 +352,10 @@ function RoundManager.Start()
 	end
 end
 
+function RoundManager.IsRoundActive()
+    return roundActive
+end
+
 function RoundManager.SkipRound()
 	if roundActive and not roundEnding then
 		roundEndSignal:Fire()

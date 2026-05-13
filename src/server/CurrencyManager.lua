@@ -123,4 +123,13 @@ function CurrencyManager.ProcessDailyLogin(player)
     print("[CurrencyManager] " .. player.Name .. " daily login — streak: " .. streak .. " days, bonus: " .. bonus .. " DC")
 end
 
+function CurrencyManager.SpendCoins(player, amount)
+    local success = DataManager.SpendCoins(player, amount)  -- atomic
+    if success then
+        local newTotal = DataManager.GetCoins(player)
+        CurrencyUpdate:FireClient(player, newTotal)
+    end
+    return success
+end
+
 return CurrencyManager
