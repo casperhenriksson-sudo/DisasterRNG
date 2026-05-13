@@ -118,4 +118,42 @@ function SpinHandler.DoSpin(player, luckMultiplier)
     return results
 end
 
+local function rollRarityWithMinimum(minIndex)
+    -- Build adjusted weights: zero out rarities below minIndex
+    local adjusted = {}
+    for i, r in ipairs(SpinData.Rarities) do
+        local w = (i >= minIndex) and r.weight or 0
+        table.insert(adjusted, {data=r, weight=w})
+    end
+    local total = 0
+    for _, item in ipairs(adjusted) do total = total + item.weight end
+    if total == 0 then return SpinData.Rarities[minIndex] end  -- fallback
+    local roll = math.random(1, total)
+    local cumulative = 0
+    for _, item in ipairs(adjusted) do
+        cumulative = cumulative + item.weight
+        if roll <= cumulative then return item.data end
+    end
+    return SpinData.Rarities[minIndex]
+end
+
+function SpinHandler.DoTierSpin(player, tierName)
+    local tier = SpinData.Tiers[tierName]
+    if not tier then return nil end
+
+    local rarity = rollRarityWithMinimum(tier.minRarityIndex)
+    local itemPool = SpinData.Items[rarity.name]
+    if not itemPool or #itemPool == 0 then
+        itemPool = SpinData.Items["Common"]
+    end
+    local item = itemPool[math.random(1, #itemPool)]
+
+    return {
+        rarity    = rarity.name,
+        itemName  = item.name,
+        itemColor = item.color,
+        rarityColor = rarity.color,
+    }
+end
+
 return SpinHandler
