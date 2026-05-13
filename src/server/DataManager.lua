@@ -21,6 +21,7 @@ local DEFAULT_DATA = {
     loginStreak = 0,
     milestonesClaimed = {},
     inventory = {},
+    equippedItem = nil,
     -- XP / Level progression
     xp = 0,
     level = 1,
