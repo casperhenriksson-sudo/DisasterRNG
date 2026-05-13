@@ -1,4 +1,6 @@
 local RoundManager = require(game.ServerScriptService.RoundManager)
 local InventoryManager = require(game.ServerScriptService.InventoryManager)
+local MovementValidator = require(game.ServerScriptService.MovementValidator)
+local StaminaManager    = require(game.ServerScriptService.StaminaManager)
 RoundManager.Start()
 print("✅ GameManager startad!")
