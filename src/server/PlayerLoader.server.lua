@@ -15,14 +15,23 @@ end
 GetData.OnServerInvoke = function(player)
     local data = DataManager.GetData(player)
     if data then
+        -- Count total inventory items
+        local inventoryCount = 0
+        if data.inventory then
+            for _ in pairs(data.inventory) do
+                inventoryCount = inventoryCount + 1
+            end
+        end
         return {
             money = data.money,
             luck = data.luck,
             rebirth = data.rebirth,
             disasterCoins = data.disasterCoins or 0,
+            equippedItem = data.equippedItem,
+            inventoryCount = inventoryCount,
         }
     end
-    return {money = 0, luck = 1, rebirth = 0, disasterCoins = 0}
+    return {money = 0, luck = 1, rebirth = 0, disasterCoins = 0, equippedItem = nil, inventoryCount = 0}
 end
 
 local function applyActiveBrainrotPerks(player)
