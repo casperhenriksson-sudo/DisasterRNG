@@ -2,6 +2,7 @@ local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local Debris = game:GetService("Debris")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local MovementValidator = require(game.ServerScriptService.MovementValidator)
 
 local RoundEvent = ReplicatedStorage:WaitForChild("RoundEvent")
 local DisasterEvent = ReplicatedStorage:FindFirstChild("DisasterEvent")
@@ -36,6 +37,7 @@ local function getAllPlayers()
 end
 
 local function damagePlayer(player, amount)
+    if MovementValidator.IsInvulnerable(player) then return end  -- dive i-frames
     local char = player.Character
     if not char then return end
     local humanoid = char:FindFirstChild("Humanoid")
