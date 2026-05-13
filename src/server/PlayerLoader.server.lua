@@ -39,6 +39,17 @@ Players.PlayerAdded:Connect(function(player)
     DataManager.LoadData(player)
     CurrencyManager.ProcessDailyLogin(player)
 
+    -- Broadcast equipped item to all existing clients so EquipVisuals can apply effects
+    local equipped = DataManager.GetEquipped(player)
+    if equipped then
+        local inv = DataManager.GetInventory(player)
+        local rarityName = inv[equipped] and inv[equipped].rarity or "Common"
+        local EquipUpdateEvent = ReplicatedStorage:FindFirstChild("EquipUpdateEvent")
+        if EquipUpdateEvent then
+            EquipUpdateEvent:FireAllClients(player, equipped, rarityName)
+        end
+    end
+
     -- Re-apply active brainrot perks whenever the character spawns
     player.CharacterAdded:Connect(function()
         task.wait(1) -- Wait for character to fully load
