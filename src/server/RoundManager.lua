@@ -1,9 +1,10 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local DataManager  = require(game.ServerScriptService.DataManager)
-local PerkManager  = require(game.ServerScriptService.PerkManager)
-local DisasterManager = require(game.ServerScriptService.DisasterManager)
-local CurrencyManager = require(game.ServerScriptService.CurrencyManager)
+local DataManager       = require(game.ServerScriptService.DataManager)
+local PerkManager       = require(game.ServerScriptService.PerkManager)
+local DisasterManager   = require(game.ServerScriptService.DisasterManager)
+local CurrencyManager   = require(game.ServerScriptService.CurrencyManager)
+local AchievementManager = require(game.ServerScriptService.AchievementManager)
 
 local RoundManager = {}
 
@@ -291,6 +292,16 @@ local function runRound()
 		if data then
 			data.totalRoundsPlayed = (data.totalRoundsPlayed or 0) + 1
 		end
+
+		-- Check achievements
+		AchievementManager.CheckRound({
+			player      = player,
+			survived    = survived,
+			isWinner    = (player == winner),
+			disaster    = currentDisaster,
+			noDamage    = (damageTaken[player] or 0) == 0,
+			DataManager = DataManager,
+		})
 
 		-- Fire round result to each player individually
 		RoundEvent:FireClient(player, "RoundResult", {
