@@ -1,17 +1,16 @@
 -- SprintHandler  (ServerScriptService)
 -- Validates and applies sprint WalkSpeed. Client requests via SprintRequest remote.
--- Server is authoritative: WalkSpeed is never above 24, stamina tracked server-side.
+-- Server is authoritative: WalkSpeed is never above 24, stamina tracked via StaminaManager.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StaminaManager = require(game.ServerScriptService.StaminaManager)
 
-local BASE_SPEED    = 16
-local SPRINT_SPEED  = 24   -- 1.5x
-local MAX_STAMINA   = 5    -- seconds
-local DRAIN_RATE    = 1    -- per second sprinting
-local REFILL_RATE   = 1/3  -- per second resting
+local BASE_SPEED   = 16
+local SPRINT_SPEED = 24
 
--- Create or find SprintRequest RemoteEvent
+local isSprinting = {}  -- [uid] = bool, mirrors what we requested from StaminaManager
+
 local SprintRequest = ReplicatedStorage:FindFirstChild("SprintRequest")
 if not SprintRequest then
     SprintRequest = Instance.new("RemoteEvent")
@@ -19,77 +18,55 @@ if not SprintRequest then
     SprintRequest.Parent = ReplicatedStorage
 end
 
--- Per-player state
-local sprintData = {}  -- [userId] = {sprinting=bool, stamina=number}
-
-local function getData(player)
-    local uid = player.UserId
-    if not sprintData[uid] then
-        sprintData[uid] = {sprinting = false, stamina = MAX_STAMINA}
-    end
-    return sprintData[uid]
-end
-
 local function setSpeed(player, speed)
     local char = player.Character
-    if char then
-        local humanoid = char:FindFirstChild("Humanoid")
-        if humanoid then
-            -- Cap to sprint speed; never let sprint override perk-based speed reduction
-            humanoid.WalkSpeed = math.clamp(speed, 0, SPRINT_SPEED)
-        end
-    end
+    if not char then return end
+    local hum = char:FindFirstChild("Humanoid")
+    if hum then hum.WalkSpeed = math.clamp(speed, 0, SPRINT_SPEED) end
 end
 
--- Re-apply speed on respawn
 Players.PlayerAdded:Connect(function(player)
+    StaminaManager.Init(player)
     player.CharacterAdded:Connect(function()
-        local data = getData(player)
-        data.sprinting = false
-        -- Reset to base on respawn
+        StaminaManager.Init(player)
+        isSprinting[player.UserId] = false
         task.wait(0.1)
         setSpeed(player, BASE_SPEED)
     end)
 end)
 
 Players.PlayerRemoving:Connect(function(player)
-    sprintData[player.UserId] = nil
+    isSprinting[player.UserId] = nil
 end)
 
--- Handle sprint request from client
 SprintRequest.OnServerEvent:Connect(function(player, on)
-    local data = getData(player)
-
+    local uid = player.UserId
     if on then
-        -- Only allow sprint if stamina > 0
-        if data.stamina > 0.05 then
-            data.sprinting = true
+        if StaminaManager.HasStamina(player) then
+            isSprinting[uid] = true
+            StaminaManager.SetSprinting(player, true)
             setSpeed(player, SPRINT_SPEED)
         end
     else
-        data.sprinting = false
+        isSprinting[uid] = false
+        StaminaManager.SetSprinting(player, false)
         setSpeed(player, BASE_SPEED)
     end
 end)
 
--- Server stamina loop: drain while sprinting, refill when not
+-- Stop sprint when stamina runs out
 task.spawn(function()
     while true do
-        task.wait(0.1)  -- 10 Hz
-        local dt = 0.1
+        task.wait(0.1)
         for _, player in ipairs(Players:GetPlayers()) do
-            local data = sprintData[player.UserId]
-            if data then
-                if data.sprinting then
-                    data.stamina = math.max(0, data.stamina - DRAIN_RATE * dt)
-                    if data.stamina <= 0 then
-                        data.sprinting = false
-                        setSpeed(player, BASE_SPEED)
-                    end
-                else
-                    data.stamina = math.min(MAX_STAMINA, data.stamina + REFILL_RATE * dt)
-                end
+            local uid = player.UserId
+            if isSprinting[uid] and not StaminaManager.HasStamina(player) then
+                isSprinting[uid] = false
+                StaminaManager.SetSprinting(player, false)
+                setSpeed(player, BASE_SPEED)
             end
         end
     end
 end)
+
+print("[SprintHandler] Loaded (using StaminaManager)")
