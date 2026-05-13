@@ -13,6 +13,7 @@ local player = Players.LocalPlayer
 -- Wait for SprintRequest remote (created by SprintHandler.server)
 local SprintRequest = ReplicatedStorage:WaitForChild("SprintRequest", 10)
 if not SprintRequest then return end
+local DiveGranted = ReplicatedStorage:WaitForChild("DiveGranted", 15)
 
 -- ── Stamina constants (mirrored from server) ──────────────────────────────────
 local MAX_STAMINA  = 5      -- seconds
@@ -62,6 +63,48 @@ barLabel.Parent = barBG
 
 -- Only show bar when stamina is not full
 barBG.Visible = false
+
+-- ── Dive cooldown ring (bottom-center, next to stamina bar) ──────────────────
+local diveBG = Instance.new("Frame")
+diveBG.Name = "DiveCooldownBG"
+diveBG.Size = UDim2.new(0, 36, 0, 36)
+diveBG.Position = UDim2.new(0.5, -100, 1, -58)
+diveBG.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+diveBG.BackgroundTransparency = 0.3
+diveBG.BorderSizePixel = 0
+diveBG.Parent = gui
+Instance.new("UICorner", diveBG).CornerRadius = UDim.new(1, 0)
+
+local diveLabel = Instance.new("TextLabel")
+diveLabel.Size = UDim2.fromScale(1, 1)
+diveLabel.BackgroundTransparency = 1
+diveLabel.Font = Enum.Font.GothamBold
+diveLabel.TextSize = 12
+diveLabel.Text = "Q"
+diveLabel.TextColor3 = Color3.fromRGB(100, 200, 255)
+diveLabel.Parent = diveBG
+
+local diveReady = true
+
+DiveGranted.OnClientEvent:Connect(function(cooldown)
+    diveReady = false
+    diveLabel.TextColor3 = Color3.fromRGB(120, 120, 120)
+    diveBG.BackgroundColor3 = Color3.fromRGB(60, 30, 30)
+
+    -- Cooldown countdown text
+    local endTime = tick() + cooldown
+    local countThread = task.spawn(function()
+        while tick() < endTime do
+            local remaining = math.ceil(endTime - tick())
+            diveLabel.Text = tostring(remaining)
+            task.wait(0.2)
+        end
+        diveReady = true
+        diveLabel.Text = "Q"
+        diveLabel.TextColor3 = Color3.fromRGB(100, 200, 255)
+        diveBG.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+    end)
+end)
 
 -- ── Input handling ────────────────────────────────────────────────────────────
 local function requestSprint(on)
