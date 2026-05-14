@@ -26,6 +26,8 @@ local DEFAULT_DATA = {
     xp = 0,
     level = 1,
     achievements = {},   -- {achievementId = true}
+    -- Daily quests
+    dailyQuests = { lastReset = 0, quests = {}, streakCount = 0 },
 }
 
 -- Ladda data när spelare går med
