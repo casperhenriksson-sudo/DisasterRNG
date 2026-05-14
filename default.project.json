@@ -21,6 +21,9 @@
       "SpinData": {
         "$path": "src/shared/SpinData.lua"
       },
+      "QuestData": {
+        "$path": "src/shared/QuestData.lua"
+      },
       "UIs": {
         "$className": "Folder",
         "UILibrary": {
