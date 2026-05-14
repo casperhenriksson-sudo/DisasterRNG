@@ -5,6 +5,7 @@ local PerkManager       = require(game.ServerScriptService.PerkManager)
 local DisasterManager   = require(game.ServerScriptService.DisasterManager)
 local CurrencyManager   = require(game.ServerScriptService.CurrencyManager)
 local AchievementManager = require(game.ServerScriptService.AchievementManager)
+local QuestManager       = require(game.ServerScriptService.QuestManager)
 
 local RoundManager = {}
 
@@ -302,6 +303,28 @@ local function runRound()
 			noDamage    = (damageTaken[player] or 0) == 0,
 			DataManager = DataManager,
 		})
+
+		-- Quest tracking (server-authoritative, deduped via roundCount)
+		local noDamage = (damageTaken[player] or 0) == 0
+		QuestManager.TrackProgress(player, "roundPlayed", 1, roundCount)
+		if survived then
+			QuestManager.TrackProgress(player, "disasterSurvived", 1, roundCount)
+			if currentDisaster == "Tornado" then
+				QuestManager.TrackProgress(player, "tornadoSurvived", 1, roundCount)
+			end
+			if currentDisaster == "Tsunami" then
+				QuestManager.TrackProgress(player, "tsunamiSurvived", 1, roundCount)
+			end
+			if noDamage then
+				QuestManager.TrackProgress(player, "noDamageRound", 1, roundCount)
+			end
+			if player == winner then
+				QuestManager.TrackProgress(player, "roundWon", 1, roundCount)
+			end
+		else
+			-- Reset survive streak on death
+			QuestManager.TrackProgress(player, "surviveDied", 1, roundCount)
+		end
 
 		-- Fire round result to each player individually
 		RoundEvent:FireClient(player, "RoundResult", {
