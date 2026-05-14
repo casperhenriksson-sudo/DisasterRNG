@@ -145,6 +145,9 @@ function QuestManager.OnPlayerAdded(player)
     sessionStart[player.UserId] = os.time()
     processedRounds[player.UserId] = {}
     claimInFlight[player.UserId] = {}
+
+    -- Push initial state so client red-dot reflects unclaimed completions on join
+    pushUpdate(player)
 end
 
 function QuestManager.OnPlayerRemoving(player)
