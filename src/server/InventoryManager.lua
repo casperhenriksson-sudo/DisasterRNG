@@ -1,5 +1,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local DataManager = require(game.ServerScriptService.DataManager)
+local QuestManager = require(game.ServerScriptService.QuestManager)
+local QuestData    = require(game.ReplicatedStorage.QuestData)
 
 local InventoryManager = {}
 
@@ -54,6 +56,11 @@ EquipEvent.OnServerEvent:Connect(function(player, itemName)
     local inv = DataManager.GetInventory(player)
     local rarityName = inv[itemName] and inv[itemName].rarity or "Common"
     EquipUpdateEvent:FireAllClients(player, itemName, rarityName)
+
+    -- Quest: equipping a Rare+ item (validated by server: owns item AND rarity check)
+    if rarityName and table.find(QuestData.RARE_PLUS, rarityName) then
+        QuestManager.TrackProgress(player, "equipRarePlus", 1)
+    end
 end)
 
 -- When player leaves, clean up throttle

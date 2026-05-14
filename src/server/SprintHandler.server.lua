@@ -5,6 +5,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StaminaManager = require(game.ServerScriptService.StaminaManager)
+local QuestManager   = require(game.ServerScriptService.QuestManager)
 
 local BASE_SPEED   = 16
 local SPRINT_SPEED = 24
@@ -43,9 +44,14 @@ SprintRequest.OnServerEvent:Connect(function(player, on)
     local uid = player.UserId
     if on then
         if StaminaManager.HasStamina(player) then
+            local wasSprinting = isSprinting[uid]
             isSprinting[uid] = true
             StaminaManager.SetSprinting(player, true)
             setSpeed(player, SPRINT_SPEED)
+            -- Quest: count each fresh sprint activation (not continuous spam)
+            if not wasSprinting then
+                QuestManager.TrackProgress(player, "sprintUsed", 1)
+            end
         end
     else
         isSprinting[uid] = false
