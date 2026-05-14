@@ -28,6 +28,13 @@ local DEFAULT_DATA = {
     achievements = {},   -- {achievementId = true}
     -- Daily quests
     dailyQuests = { lastReset = 0, quests = {}, streakCount = 0 },
+    -- Viral Moment streaks
+    winStreak           = 0,
+    survivalStreak      = 0,
+    bestWinStreak       = 0,
+    bestSurvivalStreak  = 0,
+    -- Aura reveals (tracks which auras have been shown)
+    aurasRevealed       = {},
 }
 
 -- Ladda data när spelare går med

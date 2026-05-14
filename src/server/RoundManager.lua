@@ -6,6 +6,8 @@ local DisasterManager   = require(game.ServerScriptService.DisasterManager)
 local CurrencyManager   = require(game.ServerScriptService.CurrencyManager)
 local AchievementManager = require(game.ServerScriptService.AchievementManager)
 local QuestManager       = require(game.ServerScriptService.QuestManager)
+local StreakManager      = require(game.ServerScriptService.StreakManager)
+local MomentBroadcaster  = require(game.ServerScriptService.MomentBroadcaster)
 
 local RoundManager = {}
 
@@ -324,6 +326,24 @@ local function runRound()
 		else
 			-- Reset survive streak on death
 			QuestManager.TrackProgress(player, "surviveDied", 1, roundCount)
+		end
+
+		-- Streak tracking (viral moment system)
+		local isWinner = (player == winner)
+		local newRecord, recordType, recordCount = StreakManager.OnRoundEnd(player, survived, isWinner)
+		if newRecord and recordType then
+			MomentBroadcaster.Broadcast("StreakRecord", {
+				name  = player.Name,
+				type  = recordType,
+				count = recordCount,
+			})
+		end
+		-- Broadcast win moment
+		if isWinner then
+			MomentBroadcaster.Broadcast("Win", {
+				name    = player.Name,
+				disaster = currentDisaster,
+			})
 		end
 
 		-- Fire round result to each player individually
