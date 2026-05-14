@@ -5,6 +5,7 @@
 
 local Players           = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local MomentBroadcaster = require(game.ServerScriptService.MomentBroadcaster)
 
 local CloseCallDetector = {}
 
@@ -28,6 +29,7 @@ local function hookPlayer(player)
                 if not closeCallCooldowns[uid] or now - closeCallCooldowns[uid] >= COOLDOWN then
                     closeCallCooldowns[uid] = now
                     CloseCallEvent:FireClient(player)
+                    MomentBroadcaster.Broadcast("CloseCall", {name = player.Name})
                 end
             end
             prevHealth = newHealth
