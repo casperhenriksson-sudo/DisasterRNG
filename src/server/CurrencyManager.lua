@@ -5,6 +5,16 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local DataManager = require(game.ServerScriptService.DataManager)
 
+-- Lazy QuestManager require to avoid circular dependency (QuestManager requires CurrencyManager)
+local _QuestManager
+local function getQuestManager()
+    if _QuestManager == nil then
+        local ok, mod = pcall(require, game.ServerScriptService.QuestManager)
+        if ok then _QuestManager = mod else _QuestManager = false end
+    end
+    return _QuestManager or nil
+end
+
 -- Ensure CurrencyUpdate RemoteEvent exists
 local CurrencyUpdate = ReplicatedStorage:FindFirstChild("CurrencyUpdate")
 if not CurrencyUpdate then
@@ -44,6 +54,12 @@ function CurrencyManager.AwardCoins(player, amount, reason)
     if newTotal then
         CurrencyUpdate:FireClient(player, newTotal)
         print("[CurrencyManager] +" .. amount .. " DC to " .. player.Name .. " (reason: " .. tostring(reason) .. ") — total: " .. newTotal)
+    end
+
+    -- Quest tracking: only count gameplay DC (exclude quest rewards & admin to prevent loops)
+    if reason ~= "quest_complete" and reason ~= "admin" then
+        local qm = getQuestManager()
+        if qm then qm.TrackProgress(player, "dcEarned", amount) end
     end
 end
 
