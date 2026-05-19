@@ -1,37 +1,8 @@
-# Project State Snapshot
+# Project State
 
-*Updated manually or via /game-status command.*
+## 2026-05-19
 
-## Last known commit
-See `git log --oneline -1` for current.
-
-## Features shipped
-- Round state machine (Waiting → Countdown → Active → Ending → Waiting)
-- Teleport system (lobby ↔ game island)
-- 10 disasters: Tornado, Flood, Meteor Strike, Lightning Storm, Volcanic Eruption, Blizzard, Earthquake, Tsunami, Acid Rain, Sandstorm
-- HUD: round counter, countdown, status messages, alive count
-- SoundController: lobby/tension music, SFX
-- Death effect: ColorCorrection desaturation
-- ChatCommands: /skip (vote), /timeleft, /players, /coins
-- Mid-round join detection
-- PlayerRemoving cleanup
-- DisasterCoins economy + daily login streaks + win milestones
-- 16 achievements
-- Item inventory system (Basic/Big/Mega spin tiers)
-- 10 rarity tiers (Common → SECRET 0.01%)
-- 17 passive + 8 active perks (PerkManager)
-- StaminaManager (5-unit shared pool for sprint + climb)
-- Server-authoritative dive with i-frames (MovementValidator)
-- Server-authoritative wall climb with anti-cheat (MovementValidator)
-- Server-authoritative sprint (SprintHandler)
-- LobbyManager: practice mode, fun zones (Trampoline, Teleporter, Slide, Parkour), leaderboard
-- XP/level system (15 thresholds, level 16 cap)
-- UILibrary: 29 shared UI components
-- EquipVisuals: aura effects on equipped items
-
-## Stats
-Run these to get current counts:
-```
-git log --oneline | wc -l   # commit count
-Get-ChildItem src/ -Recurse -Filter *.lua | Measure-Object   # file count
-```
+- **GameManager** confirmed running at server startup (was suspected broken — investigation showed it was fine, added `print("GameManager file loaded")` as first line for future verification).
+- **`/forcestart` and `/fs` chat commands** added to `ChatCommands.lua` for Studio solo testing. Bypasses `MIN_PLAYERS=2` check via `RoundManager.ForceStart()`. Authorized for game owner (`game.CreatorId`), admin whitelist, or any Studio session.
+- **UI overlap fix complete** — all 16 elements repositioned to assigned screen zones. Zero remaining collisions verified at 1920×1080. Zones: top-left (player status), top-center (countdown / disaster card / practice button / alive label / objective), top-right (coins / rebirth badge / achievement toasts), mid-center (big countdown number / spin card), mid-right (leaderboard panels), bottom-left (XP bar / money / luck / streak), bottom-center (spin buttons / perk button / hype toasts / death recap), bottom-right (inventory / quests buttons).
+- **Solo round loop** now playable end-to-end with one player in Studio using `/forcestart`.

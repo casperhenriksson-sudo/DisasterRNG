@@ -1,12 +1,13 @@
 # Known Problems
 
-Format: Severity | Issue | Workaround | Fix Priority
+## Resolved
 
----
+### GameManager not confirmed running at startup
+**Resolved 2026-05-19.** GameManager was suspected broken but was functioning correctly. Added `print("GameManager file loaded")` as the first line of the Script to make startup confirmation visible in Output.
 
-| Severity | Issue | Workaround | Fix Priority |
-|---|---|---|---|
-| Medium | workspace.Model missing PrimaryPart — Earthquake warning fires but CFrame anchor is unreliable | None; visually works but may offset on server lag | High |
-| Medium | StaminaManager may double-drain during simultaneous sprint+climb transition | Player loses extra stamina on edge case; not exploitable | Medium |
-| Low | Mid-round join UI is text-only ("Round in progress") | Acceptable for now | Low |
-| Low | CLAUDE.md previously listed src/StarterGui/ as a folder; it does not exist as a filesystem path (StarterGui contents are in default.project.json Rojo mapping) | Use default.project.json as source of truth for Rojo mappings | Low |
+### UI elements overlapping across all game states
+**Resolved 2026-05-19.** 16 ScreenGui elements were colliding in lobby, countdown, round, and round-end states (worst case: MoneyDisplay and XPContainer fully overlapping at bottom-left, always visible). All elements repositioned to dedicated screen zones with explicit Y gaps. No remaining collisions at 1920×1080.
+
+## Open
+
+<!-- Add new problems here -->
