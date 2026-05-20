@@ -1,0 +1,21 @@
+{
+  // Luau LSP — Roblox type definitions (downloaded automatically by the extension)
+  "luau-lsp.types.roblox": true,
+
+  // Sourcemap — lets luau-lsp resolve requires using our Rojo project layout
+  "luau-lsp.sourcemap.enabled": true,
+  "luau-lsp.sourcemap.rojoProjectFile": "default.project.json",
+  "luau-lsp.sourcemap.autogenerate": true,
+
+  // Diagnostics
+  "luau-lsp.diagnostics.enabled": true,
+  "luau-lsp.ignoreGlobs": [
+    "**/_Index/**",
+    "**/node_modules/**"
+  ],
+
+  // Tell the Lua extension (if installed) to treat all files as Luau
+  "files.associations": {
+    "*.lua": "luau"
+  }
+}

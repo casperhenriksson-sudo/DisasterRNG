@@ -4,6 +4,9 @@
 *.rbxlx.lock
 /build
 /sourcemap.json
-.vscode/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.luau-lsp/
 node_modules/
 *.log

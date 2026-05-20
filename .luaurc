@@ -1,0 +1,8 @@
+{
+  "languageMode": "nonstrict",
+  "lint": {
+    "UnknownGlobal": "enabled",
+    "DeprecatedApi": "enabled",
+    "MissingRequireAlias": "enabled"
+  }
+}
