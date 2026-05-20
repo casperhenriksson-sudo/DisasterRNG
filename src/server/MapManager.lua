@@ -1,34 +1,48 @@
-local MapConfig = require(game.ReplicatedStorage.MapConfig)
+local MapConfig   = require(game.ReplicatedStorage.MapConfig)
+local MapTemplates = require(script.Parent.MapTemplates)
 
 local MapManager = {}
 
 local currentMap: Model? = nil
 
 function MapManager.init()
-	-- placeholder: nothing to initialise until templates exist
+	-- nothing to initialise until destruction hooks are wired
 end
 
--- Returns a Model named "CurrentMap" with a PrimaryPart set.
--- seed is accepted but unused until procedural generation is wired.
 function MapManager.buildMap(seed: number?): Model
 	MapManager.cleanupMap()
 
-	local map = Instance.new("Model")
-	map.Name = "CurrentMap"
+	local rng      = Random.new(seed or tick())
+	local template = MapTemplates.getRandom(rng)
 
-	local anchor = Instance.new("Part")
-	anchor.Name       = "Anchor"
-	anchor.Size       = Vector3.new(1, 1, 1)
-	anchor.CFrame     = CFrame.new(MapConfig.MAP_ORIGIN)
-	anchor.Anchored   = true
-	anchor.CanCollide = false
+	local map      = Instance.new("Model")
+	map.Name       = "CurrentMap"
+
+	-- Invisible anchor at origin — required PrimaryPart
+	local anchor        = Instance.new("Part")
+	anchor.Name         = "Anchor"
+	anchor.Size         = Vector3.new(1, 1, 1)
+	anchor.CFrame       = CFrame.new(MapConfig.MAP_ORIGIN)
+	anchor.Anchored     = true
+	anchor.CanCollide   = false
 	anchor.Transparency = 1
-	anchor.Parent = map
+	anchor.Parent       = map
+	map.PrimaryPart     = anchor
 
-	map.PrimaryPart = anchor
-	map.Parent      = workspace
+	-- Build template and parent all instances under map
+	local instances = template.build(rng, MapConfig.MAP_ORIGIN, MapConfig)
+	local count = 0
+	for _, inst in ipairs(instances) do
+		inst.Parent = map
+		count += 1
+	end
 
-	currentMap = map
+	map.Parent  = workspace
+	currentMap  = map
+
+	print(string.format("[MapManager] built %q — %d instances (seed %s)",
+		template.name, count, tostring(seed)))
+
 	return map
 end
 
@@ -37,7 +51,6 @@ function MapManager.cleanupMap()
 		currentMap:Destroy()
 		currentMap = nil
 	end
-	-- catch any orphaned CurrentMap left by a previous session
 	local orphan = workspace:FindFirstChild("CurrentMap")
 	if orphan then orphan:Destroy() end
 end
