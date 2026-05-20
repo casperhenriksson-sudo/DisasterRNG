@@ -24,6 +24,9 @@
       "QuestData": {
         "$path": "src/shared/QuestData.lua"
       },
+      "MapConfig": {
+        "$path": "src/shared/MapConfig.lua"
+      },
       "UIs": {
         "$className": "Folder",
         "UILibrary": {
