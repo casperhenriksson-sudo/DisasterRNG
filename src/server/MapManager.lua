@@ -6,7 +6,11 @@ local MapManager = {}
 local currentMap: Model? = nil
 
 function MapManager.init()
-	-- nothing to initialise until destruction hooks are wired
+	local stale = workspace:FindFirstChild("TestMap")
+	if stale then
+		stale:Destroy()
+		print("[MapManager] removed stale TestMap")
+	end
 end
 
 function MapManager.buildMap(seed: number?): Model
@@ -57,6 +61,17 @@ end
 
 function MapManager.getCurrentMap(): Model?
 	return currentMap
+end
+
+function MapManager.getSpawnPoints(): {Vector3}
+	if not currentMap then return {} end
+	local points = {}
+	for _, inst in ipairs(currentMap:GetDescendants()) do
+		if inst:IsA("SpawnLocation") then
+			points[#points + 1] = inst.Position
+		end
+	end
+	return points
 end
 
 function MapManager.getMapBounds(): {min: Vector3, max: Vector3, center: Vector3}

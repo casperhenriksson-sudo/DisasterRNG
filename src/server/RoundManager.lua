@@ -9,6 +9,8 @@ local QuestManager       = require(game.ServerScriptService.QuestManager)
 local StreakManager      = require(game.ServerScriptService.StreakManager)
 local MomentBroadcaster  = require(game.ServerScriptService.MomentBroadcaster)
 
+local MapManager        = require(game.ServerScriptService.MapManager)
+
 local RoundManager = {}
 
 -- Set DEBUG_MODE = true to enable debug prints
@@ -69,17 +71,29 @@ local function pickMutation()
 end
 
 local function teleportToMap()
-	local gameSpawnsFolder = workspace:FindFirstChild("GameSpawns")
-	if not gameSpawnsFolder then
-		warn("RoundManager: GameSpawns folder not found — using fallback position")
+	-- Prefer procedural spawn points from the active map template
+	local spawnPoints = MapManager.getSpawnPoints()
+
+	-- Fall back to manual GameSpawns folder if template has none
+	if #spawnPoints == 0 then
+		local folder = workspace:FindFirstChild("GameSpawns")
+		if folder then
+			for _, sp in ipairs(folder:GetChildren()) do
+				spawnPoints[#spawnPoints + 1] = sp.Position
+			end
+		end
 	end
-	local spawns  = gameSpawnsFolder and gameSpawnsFolder:GetChildren() or {}
+
+	-- Last resort: game island centre
+	if #spawnPoints == 0 then
+		spawnPoints = { Vector3.new(500, 5, 0) }
+	end
+
 	local players = Players:GetPlayers()
 	for i, player in ipairs(players) do
 		local char = player.Character
 		if char and char:FindFirstChild("HumanoidRootPart") then
-			local spawn = #spawns > 0 and spawns[((i - 1) % #spawns) + 1] or nil
-			local pos   = spawn and spawn.Position or Vector3.new(-432, 45, 42)
+			local pos = spawnPoints[((i - 1) % #spawnPoints) + 1]
 			char.HumanoidRootPart.CFrame = CFrame.new(pos + Vector3.new(0, 3, 0))
 		end
 	end
@@ -170,10 +184,12 @@ local function runRound()
 		task.wait(1)
 	end
 
-	-- ── 3. Teleport to map ───────────────────────────────────────────────────
+	-- ── 3. Build map + teleport ──────────────────────────────────────────────
 	roundCount   = roundCount + 1
 	roundActive  = true
 	roundEnding  = false
+	MapManager.buildMap()
+	print("[RoundManager] map built")
 	teleportToMap()
 
 	-- Snapshot alive players AFTER teleport
@@ -379,6 +395,8 @@ local function runRound()
 	task.wait(INTERMISSION)
 
 	teleportToLobby()
+	MapManager.cleanupMap()
+	print("[RoundManager] map cleaned")
 	roundActive = false
 end
 

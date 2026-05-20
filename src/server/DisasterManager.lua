@@ -3,6 +3,7 @@ local TweenService = game:GetService("TweenService")
 local Debris = game:GetService("Debris")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local MovementValidator = require(game.ServerScriptService.MovementValidator)
+local MapManager        = require(game.ServerScriptService.MapManager)
 
 local RoundEvent = ReplicatedStorage:WaitForChild("RoundEvent")
 local DisasterEvent = ReplicatedStorage:FindFirstChild("DisasterEvent")
@@ -24,12 +25,12 @@ end
 -- ============================================
 
 local function getMapCenter()
-    local map = workspace:FindFirstChild("CurrentMap") or workspace:FindFirstChild("Model")
+    local map = MapManager.getCurrentMap()
     if map then
-        local cf, size = map:GetBoundingBox()
+        local cf = map:GetBoundingBox()
         return cf.Position
     end
-    return Vector3.new(-432, 10, 42)
+    return Vector3.new(500, 10, 0)  -- game island fallback
 end
 
 local function getAllPlayers()
@@ -47,7 +48,7 @@ local function damagePlayer(player, amount)
 end
 
 local function getBreakableParts()
-    local map = workspace:FindFirstChild("CurrentMap") or workspace:FindFirstChild("Model")
+    local map = MapManager.getCurrentMap()
     if not map then return {} end
     local parts = {}
     for _, part in ipairs(map:GetDescendants()) do
@@ -633,7 +634,7 @@ end
 -- ============================================
 function DisasterManager.Earthquake()
     local RunService = game:GetService("RunService")
-    local map = workspace:FindFirstChild("CurrentMap") or workspace:FindFirstChild("Model")
+    local map = MapManager.getCurrentMap()
     local parts = getBreakableParts()
     local elapsed = 0
 
