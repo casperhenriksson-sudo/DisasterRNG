@@ -926,6 +926,10 @@ local disasterMap = {
 }
 
 function DisasterManager.Run(disasterName)
+    if not MapManager.getCurrentMap() then
+        warn("[DisasterManager] Run: no active map, skipping " .. tostring(disasterName))
+        return
+    end
     local fn = disasterMap[disasterName]
     if fn then
         dprint("Running disaster:", disasterName)

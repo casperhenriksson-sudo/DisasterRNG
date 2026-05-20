@@ -15,6 +15,7 @@ src/
 | GameManager | Entry point — requires and wires all server systems |
 | RoundManager | Core round state machine |
 | DisasterManager | 10 disaster implementations |
+| MapManager | Procedural map lifecycle: buildMap, cleanupMap, getSpawnPoints, getMapBounds |
 | LobbyManager | Lobby spawning, practice mode, fun zones, leaderboard |
 | DataManager | DataStore wrapper, player data cache |
 | CurrencyManager | DisasterCoins economy, daily login streaks, win milestones |
@@ -44,8 +45,11 @@ Waiting ──(≥2 players)──► Countdown (10s) ──► Active ──►
 
 ```
 GameManager
+  ├── MapManager ──► MapTemplates (Island_Ruins)
+  │              ──► writes: workspace.CurrentMap
   ├── RoundManager ──► DataManager, PerkManager, DisasterManager
   │                ──► CurrencyManager, AchievementManager
+  │                ──► MapManager (buildMap on Active, cleanupMap on Waiting)
   │                ──► fires: RoundEvent
   ├── InventoryManager ──► DataManager
   │                    ──► fires: EquipEvent, EquipUpdateEvent

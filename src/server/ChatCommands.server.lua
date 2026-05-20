@@ -1,10 +1,12 @@
 -- ChatCommands Server Script
 -- Registers /skip, /timeleft, /players, /coins via TextChatService
 
-local Players = game:GetService("Players")
+local Players         = game:GetService("Players")
 local TextChatService = game:GetService("TextChatService")
-local RoundManager = require(game.ServerScriptService.RoundManager)
-local DataManager = require(game.ServerScriptService.DataManager)
+local RunService      = game:GetService("RunService")
+local RoundManager    = require(game.ServerScriptService.RoundManager)
+local DataManager     = require(game.ServerScriptService.DataManager)
+local DisasterManager = require(game.ServerScriptService.DisasterManager)
 
 -- Admin whitelist — UserId numbers
 local ADMINS = {
@@ -85,3 +87,45 @@ coinsCmd.Triggered:Connect(function(originTextSource, unfilteredText)
 	local coins = DataManager.GetCoins(player)
 	sendSystemMsg("[Server] " .. player.Name .. " has " .. coins .. " DC.")
 end)
+
+-- /forcedisaster <name>  (Studio only)
+local FORCE_ALIASES = {
+	meteor     = "Meteor Strike",
+	earthquake = "Earthquake",
+	tornado    = "Tornado",
+	volcano    = "Volcanic Eruption",
+	tsunami    = "Tsunami",
+	flood      = "Flood",
+	lightning  = "Lightning Storm",
+	blizzard   = "Blizzard",
+	acidrain   = "Acid Rain",
+	sandstorm  = "Sandstorm",
+}
+
+if RunService:IsStudio() then
+	local fdCmd = Instance.new("TextChatCommand")
+	fdCmd.Name           = "ForceDisasterCommand"
+	fdCmd.PrimaryAlias   = "/forcedisaster"
+	fdCmd.SecondaryAlias = "/fd"
+	fdCmd.Parent         = TextChatService
+
+	fdCmd.Triggered:Connect(function(originTextSource, unfilteredText)
+		local alias = unfilteredText:lower():match("^/f[a-z]+%s+(%S+)$")
+		if not alias then
+			sendSystemMsg("[Server] Usage: /forcedisaster <meteor|earthquake|tornado|volcano|tsunami|flood|lightning|blizzard|acidrain|sandstorm>")
+			return
+		end
+		local disasterName = FORCE_ALIASES[alias]
+		if not disasterName then
+			sendSystemMsg("[Server] Unknown disaster alias: " .. alias)
+			return
+		end
+		if not RoundManager.IsRoundActive() then
+			print("[DisasterManager] forced: no active round")
+			sendSystemMsg("[Server] No active round.")
+			return
+		end
+		print("[DisasterManager] forced: " .. disasterName)
+		DisasterManager.Run(disasterName)
+	end)
+end

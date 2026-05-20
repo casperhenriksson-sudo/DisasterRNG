@@ -8,6 +8,9 @@
 ### UI elements overlapping across all game states
 **Resolved 2026-05-19.** 16 ScreenGui elements were colliding in lobby, countdown, round, and round-end states (worst case: MoneyDisplay and XPContainer fully overlapping at bottom-left, always visible). All elements repositioned to dedicated screen zones with explicit Y gaps. No remaining collisions at 1920×1080.
 
+### Earthquake PrimaryPart crash on CurrentMap
+**Resolved 2026-05-20.** `Earthquake` calls `map:PivotTo()` which requires `PrimaryPart` to be set. The old toolbox CurrentMap had no PrimaryPart. MapManager now explicitly sets `map.PrimaryPart = anchor` on every `buildMap()`, so PivotTo never throws.
+
 ## Open
 
 <!-- Add new problems here -->
